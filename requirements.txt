@@ -1,0 +1,8 @@
+# Core dependencies
+PyYAML==6.0.2          # Load YAML KQL templates
+feedparser==6.0.11     # Parse RSS/Atom feeds
+requests==2.32.3       # Fetch JSON/RSS feeds (e.g., CISA KEV)
+python-dateutil==2.9.0.post0  # Parse and normalize dates
+Jinja2==3.1.4          # Render HTML templates for newsletters
+
+# Email handling
