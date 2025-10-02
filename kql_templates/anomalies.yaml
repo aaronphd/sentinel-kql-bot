@@ -1,0 +1,13 @@
+rare_process_creation_last_hours: |
+  DeviceProcessEvents
+  | where TimeGenerated >= ago({hours}h)
+  | summarize Count = count() by FileName
+  | order by Count asc
+  | take 50
+
+large_data_exfil_last_hours: |
+  OfficeActivity
+  | where TimeGenerated >= ago({hours}h)
+  | where Operation =~ "FileDownloaded"
+  | summarize Downloads = count() by UserId, bin(TimeGenerated, 1h)
+  | order by Downloads desc
