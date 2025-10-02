@@ -1,0 +1,21 @@
+failed_logins_last_hours: |
+  SecurityEvent
+  | where EventID == 4625
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedAttempts = count() by Account, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
+
+azure_failed_signins_last_hours: |
+  SigninLogs
+  | where ResultType != 0
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedAttempts = count() by UserPrincipalName, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
+
+failed_logins_by_user_last_hours: |
+  SecurityEvent
+  | where EventID == 4625
+  | where Account =~ "{user}"
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedAttempts = count() by Account, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
