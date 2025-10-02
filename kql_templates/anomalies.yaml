@@ -1,1 +1,35 @@
+rare_process_creation_last_hours: |
+  DeviceProcessEvents
+  | where TimeGenerated >= ago({hours}h)
+  | summarize Count = count() by FileName
+  | order by Count asc
+  | take 50
 
+suspicious_powershell_usage: |
+  DeviceProcessEvents
+  | where TimeGenerated >= ago({hours}h)
+  | where FileName =~ "powershell.exe"
+  | where ProcessCommandLine has_any ("-enc", "Invoke-WebRequest", "IEX", "DownloadString")
+  | project TimeGenerated, DeviceName, AccountName, ProcessCommandLine
+
+large_data_exfil_last_hours: |
+  OfficeActivity
+  | where TimeGenerated >= ago({hours}h)
+  | where Operation =~ "FileDownloaded"
+  | summarize Downloads = count() by UserId, bin(TimeGenerated, 1h)
+  | order by Downloads desc
+
+rare_admin_tool_usage: |
+  DeviceProcessEvents
+  | where TimeGenerated >= ago({hours}h)
+  | where FileName in~ ("psexec.exe", "wmic.exe", "at.exe", "schtasks.exe")
+  | summarize Count = count() by FileName, AccountName, DeviceName, bin(TimeGenerated, 1h)
+  | order by Count desc
+
+unusual_logon_times: |
+  SigninLogs
+  | where TimeGenerated >= ago({hours}h)
+  | extend HourOfDay = datetime_part("hour", TimeGenerated)
+  | summarize Count = count() by UserPrincipalName, HourOfDay
+  | where HourOfDay < 6 or HourOfDay > 22
+  | order by Count desc
