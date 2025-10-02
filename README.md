@@ -29,7 +29,7 @@ This bot helps bridge the gap by giving SOC analysts **ready-made, defensible KQ
 ---
 
 ## 📖 Example Usage
-
+👉 See the [SOC Quick Reference](SOC_Quick_Reference.md) for a one‑page guide to all starter queries.
 Open a GitHub Issue or comment with:
 
 - `/kql failed logins last 24h`
