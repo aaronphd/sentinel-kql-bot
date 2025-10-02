@@ -5,6 +5,13 @@ rare_process_creation_last_hours: |
   | order by Count asc
   | take 50
 
+suspicious_powershell_usage: |
+  DeviceProcessEvents
+  | where TimeGenerated >= ago({hours}h)
+  | where FileName =~ "powershell.exe"
+  | where ProcessCommandLine has_any ("-enc", "Invoke-WebRequest", "IEX")
+  | project TimeGenerated, DeviceName, AccountName, ProcessCommandLine
+
 large_data_exfil_last_hours: |
   OfficeActivity
   | where TimeGenerated >= ago({hours}h)
