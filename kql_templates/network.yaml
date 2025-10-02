@@ -1,1 +1,35 @@
+failed_logins_last_hours: |
+  SecurityEvent
+  | where EventID == 4625
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedAttempts = count() by Account, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
 
+azure_failed_signins_last_hours: |
+  SigninLogs
+  | where TimeGenerated >= ago({hours}h)
+  | where ResultType != 0
+  | summarize FailedAttempts = count() by UserPrincipalName, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
+
+failed_logins_by_user_last_hours: |
+  SecurityEvent
+  | where EventID == 4625
+  | where Account =~ "{user}"
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedAttempts = count() by Account, bin(TimeGenerated, 1h)
+  | order by FailedAttempts desc
+
+risky_signins_last_hours: |
+  SigninLogs
+  | where TimeGenerated >= ago({hours}h)
+  | where RiskLevelDuringSignIn != "none"
+  | summarize Count = count() by UserPrincipalName, RiskLevelDuringSignIn, bin(TimeGenerated, 1h)
+  | order by Count desc
+
+multiple_failed_then_success: |
+  SigninLogs
+  | where TimeGenerated >= ago({hours}h)
+  | summarize FailedCount = countif(ResultType != 0), SuccessCount = countif(ResultType == 0) by UserPrincipalName, bin(TimeGenerated, 1h)
+  | where FailedCount > 5 and SuccessCount > 0
+  | order by FailedCount desc
